@@ -28,6 +28,7 @@ import java.nio.charset.Charset;
 @CrossOrigin
 @RestController
 public class UserController {
+    final String SQLPASSWORD = System.getenv("key");
     int num = 0;
     @RequestMapping(value = "/registerUser", method = RequestMethod.POST) // <-- setup the endpoint URL at /hello with the HTTP POST method
     public ResponseEntity<String> register(@RequestBody String payload, HttpServletRequest request) {
@@ -49,7 +50,7 @@ public class UserController {
 
         // connecting database to backend
         try {
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "Hoya0328!");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", SQLPASSWORD);
 //            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Shopping?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", Clothing.SQL_PASSWORD);
             System.out.println(conn);
             PreparedStatement check_stmt = conn.prepareStatement("SELECT EMAIL FROM Users WHERE EMAIL=?");
@@ -103,7 +104,8 @@ public class UserController {
         String hashedKey = null;
         Connection conn;
         try {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "Hoya0328!");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", SQLPASSWORD
+            );
             System.out.println(conn);
             String query = "SELECT username, password FROM Users WHERE username = å(?)";
             PreparedStatement stmt = conn.prepareStatement(query);
