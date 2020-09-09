@@ -46,7 +46,7 @@ public class UserController {
 
         hashedKey = org.mindrot.jbcrypt.BCrypt.hashpw(password, org.mindrot.jbcrypt.BCrypt.gensalt());
         System.out.println("registering user" + username + " password " + password);
-        User u1 = new User(username, hashedKey, email);
+//        User u1 = new User(username, hashedKey, email);
 
         // connecting database to backend
         try {
@@ -55,11 +55,22 @@ public class UserController {
             System.out.println(conn);
             PreparedStatement check_stmt = conn.prepareStatement("SELECT EMAIL FROM Users WHERE EMAIL=?");
             check_stmt.setString(1,email);
+            PreparedStatement check_stmt2 = conn.prepareStatement("SELECT USERNAME FROM Users WHERE USERNAME=?");
+            check_stmt2.setString(1,username);
             ResultSet rs = check_stmt.executeQuery();
+            ResultSet rs2 = check_stmt2.executeQuery();
             if(rs.next()) {
-                System.out.println("Email already exists");
+                //System.out.println("Email already exists");
                 JSONObject responseObj = new JSONObject();
-                responseObj.put("email", email);
+                responseObj.put("message", "Account already exists");
+                System.out.println(responseObj.toString());
+                return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
+            }
+            else if(rs2.next()) {
+                //System.out.println("Email already exists");
+                JSONObject responseObj = new JSONObject();
+                responseObj.put("message", username + " already exists");
+                System.out.println(responseObj.toString());
                 return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
             }
             else {
@@ -107,14 +118,13 @@ public class UserController {
             conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", SQLPASSWORD
             );
             System.out.println(conn);
-            String query = "SELECT username, password FROM Users WHERE username = å(?)";
+            String query = "SELECT username, password FROM Users WHERE username = (?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
 
             if (!rs.isBeforeFirst()) {
                 System.out.println("no username");
-                System.out.println(username);
                 return new ResponseEntity("{\"message\":\"username not registered\"}", responseHeaders, HttpStatus.BAD_REQUEST);
             } else {
                 String loginPassword = "";
@@ -139,6 +149,7 @@ public class UserController {
                     JSONObject responseObj = new JSONObject();
                     responseObj.put("token", token);
                     responseObj.put("message", "user logged in");
+                    System.out.println("sent back to android");
                     return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.OK);
                 }
                 else {
