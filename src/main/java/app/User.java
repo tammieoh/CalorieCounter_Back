@@ -7,21 +7,16 @@ public class User {
 	private String token;
 	private String password;
 	private String email;
+	private CalorieCounter calorieCounter;
 	
 	// constructor
 	public User(String username, String password, String email) {
 		this.username = username;
 		this.password = password;
 		this.email = email;
+//		this.calorieCounter = calorieCounter;
 	}
 
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	public String getUsername() {
 		return username;

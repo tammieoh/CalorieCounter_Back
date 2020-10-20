@@ -198,6 +198,82 @@ public class UserController {
             return new ResponseEntity("{\"message\":\"Bad Token\"}", responseHeaders, HttpStatus.BAD_REQUEST);
         }
     }
+//    @RequestMapping(value = "/search", method = RequestMethod.GET)
+//    public ResponseEntity<String> search(HttpServletRequest request) {
+//        String searchString = request.getParameter("Name");
+////        System.out.println(searchString);
+//        searchString = "%"+searchString+"%";
+////        System.out.println(searchString);
+//        HttpHeaders responseHeaders = new HttpHeaders();
+//        responseHeaders.set("Content-Type", "application/json");
+//
+//        try {
+//            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", SQLPASSWORD);
+//            String query = "SELECT * FROM Comps.Foods WHERE Name LIKE ?";
+//            PreparedStatement stmt = conn.prepareStatement(query);
+//            stmt.setString(1, searchString);
+//            ResultSet rs =  stmt.executeQuery();
+//            JSONArray searchResultsArray = new JSONArray();
+//            while(rs.next()) {
+//                JSONObject newObject = new JSONObject();
+//                newObject.put("Name", rs.getString("Name"));
+////                System.out.println(newObject);
+////                newObject.put("description", rs.getString("description"));
+////                newObject.put("price", rs.getString("price"));
+////                newObject.put("color", rs.getString("color"));
+////                newObject.put("fabricType", rs.getString("fabricType"));
+////                newObject.put("rating", rs.getString("rating"));
+////                newObject.put("img", rs.getString("img"));
+//                searchResultsArray.put(newObject);
+//            }
+//            return new ResponseEntity(searchResultsArray.toString(), responseHeaders, HttpStatus.OK);
+//        } catch (SQLException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//        return new ResponseEntity("{\"message\":\"" + " error \"}", responseHeaders, HttpStatus.OK);
+//
+//    }
+@RequestMapping(value = "/getFoods", method = RequestMethod.GET)
+public ResponseEntity<String> getFoods(HttpServletRequest request) {
+//    String searchString = request.getParameter("Name");
+//        System.out.println(searchString);
+//    searchString = "%"+searchString+"%";
+//        System.out.println(searchString);
+    HttpHeaders responseHeaders = new HttpHeaders();
+    responseHeaders.set("Content-Type", "application/json");
+
+    try {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", SQLPASSWORD);
+        String query = "SELECT * FROM Comps.Foods";
+        PreparedStatement stmt = conn.prepareStatement(query);
+//        stmt.setString(1, searchString);
+        ResultSet rs =  stmt.executeQuery();
+        JSONArray searchResultsArray = new JSONArray();
+        while(rs.next()) {
+            JSONObject newObject = new JSONObject();
+            newObject.put("Name", rs.getString("Name"));
+//                System.out.println(newObject);
+//                newObject.put("description", rs.getString("description"));
+//                newObject.put("price", rs.getString("price"));
+//                newObject.put("color", rs.getString("color"));
+//                newObject.put("fabricType", rs.getString("fabricType"));
+//                newObject.put("rating", rs.getString("rating"));
+//                newObject.put("img", rs.getString("img"));
+            searchResultsArray.put(newObject);
+        }
+        System.out.println("we good");
+        System.out.println(searchResultsArray.get(0).toString());
+        return new ResponseEntity(searchResultsArray.toString(), responseHeaders, HttpStatus.OK);
+    } catch (SQLException e) {
+        // TODO Auto-generated catch block
+        System.out.println("Hello error alert");
+        e.printStackTrace();
+    }
+    System.out.println("yikes");
+    return new ResponseEntity("{\"message\":\"" + " error \"}", responseHeaders, HttpStatus.OK);
+
+}
 //    @RequestMapping(value = "/addToWishList", method = RequestMethod.POST) // <-- setup the endpoint URL at /hello with the HTTP POST method
 //    public ResponseEntity<String> addToWishList(HttpServletRequest request) {
 //        String nameToPull = request.getParameter("username");
@@ -556,39 +632,7 @@ public class UserController {
 //        return new ResponseEntity("{\"message\":\"" + clothingName + " has been moved to shopping cart \"}", responseHeaders, HttpStatus.OK);
 //    }
 //
-//    @RequestMapping(value = "/search", method = RequestMethod.GET)
-//    public ResponseEntity<String> search(HttpServletRequest request) {
-//        String searchString = request.getParameter("search");
-//        searchString = "%"+searchString+"%";
-//        HttpHeaders responseHeaders = new HttpHeaders();
-//        responseHeaders.set("Content-Type", "application/json");
-//
-//        try {
-//            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Shopping?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", "123");
-//            String query = "SELECT * FROM Shopping.Products WHERE name LIKE ?";
-//            PreparedStatement stmt = conn.prepareStatement(query);
-//            stmt.setString(1, searchString);
-//            ResultSet rs =  stmt.executeQuery();
-//            JSONArray searchResultsArray = new JSONArray();
-//            while(rs.next()) {
-//                JSONObject newObject = new JSONObject();
-//                newObject.put("name", rs.getString("name"));
-//                newObject.put("description", rs.getString("description"));
-//                newObject.put("price", rs.getString("price"));
-//                newObject.put("color", rs.getString("color"));
-//                newObject.put("fabricType", rs.getString("fabricType"));
-//                newObject.put("rating", rs.getString("rating"));
-//                newObject.put("img", rs.getString("img"));
-//                searchResultsArray.put(newObject);
-//            }
-//            return new ResponseEntity(searchResultsArray.toString(), responseHeaders, HttpStatus.OK);
-//        } catch (SQLException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//        return new ResponseEntity("{\"message\":\"" + " error \"}", responseHeaders, HttpStatus.OK);
-//
-//    }
+
 
     @RequestMapping(value = "/connectToDB", method = RequestMethod.GET) // <-- setup the endpoint URL at /hello with the HTTP POST method
     public ResponseEntity<String> connectToDB(HttpServletRequest request) {
