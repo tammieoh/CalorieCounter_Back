@@ -169,7 +169,61 @@ public class UserController {
 //        return new ResponseEntity("{\"message\":\"username not registered\"}", responseHeaders, HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/validateToken", method = RequestMethod.GET) // <-- setup the endpoint URL at /hello with the HTTP POST method
+    @RequestMapping(value = "/calories", method = RequestMethod.POST) // <-- setup the endpoint URL at /hello with the HTTP POST method
+    public ResponseEntity<String> caloriecalculator(@RequestBody String payload, HttpServletRequest request) {
+        System.out.println("inside calorie calculator API");
+        JSONObject payloadObj = new JSONObject(payload); // type into body
+
+        String calories = payloadObj.getString("calories"); //Grabbing name and age parameters from URL
+        String username = payloadObj.getString("username");
+
+        System.out.println(calories);
+        System.out.println(username);
+		/*Creating http headers object to place into response entity the server will return.
+		This is what allows us to set the content-type to application/json or any other content-type
+		we would want to return */
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("Content-Type", "application/json");
+
+        MessageDigest digest = null;
+        String hashedKey = null;
+        Connection conn;
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", SQLPASSWORD);
+            System.out.println(conn);
+            PreparedStatement check_stmt = conn.prepareStatement("SELECT username FROM Users WHERE username=?");
+            check_stmt.setString(1, username);
+            ResultSet rs = check_stmt.executeQuery();
+
+            if (!rs.isBeforeFirst()) {
+                System.out.println("no username");
+                return new ResponseEntity("{\"message\":\"username not registered\"}", responseHeaders, HttpStatus.BAD_REQUEST);
+            } else {
+                PreparedStatement stmt = conn.prepareStatement("UPDATE Users SET calories=? WHERE username=?");
+//            stmt.setNull(1, java.sql.Types.NULL);
+                stmt.setString(1, calories);
+                stmt.setString(2, username);
+                stmt.execute();
+            }
+        }
+        catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            JSONObject responseObj = new JSONObject();
+//            responseObj.put("username", username);
+            responseObj.put("message", e.getMessage());
+            System.out.println(e.getMessage());
+            return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        JSONObject responseObj = new JSONObject();
+
+        responseObj.put("calories", calories);
+        responseObj.put("message", "calories saved");
+        return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.OK);
+//        return new ResponseEntity("{\"message\":\"username not registered\"}", responseHeaders, HttpStatus.BAD_REQUEST);
+    }
+
+        @RequestMapping(value = "/validateToken", method = RequestMethod.GET) // <-- setup the endpoint URL at /hello with the HTTP POST method
     public ResponseEntity<String> validateToken(HttpServletRequest request) {
         String username = request.getParameter("username"); //Grabbing name and age parameters from URL
         String token = request.getParameter("token");
@@ -272,8 +326,50 @@ public ResponseEntity<String> getFoods(HttpServletRequest request) {
     }
     System.out.println("yikes");
     return new ResponseEntity("{\"message\":\"" + " error \"}", responseHeaders, HttpStatus.OK);
-
 }
+    @RequestMapping(value = "/getCalories", method = RequestMethod.POST)
+    public ResponseEntity<String> getCalories(@RequestBody String payload, HttpServletRequest request) {
+//    String searchString = request.getParameter("Name");
+//        System.out.println(searchString);
+//    searchString = "%"+searchString+"%";
+//        System.out.println(searchString);
+        System.out.println("in get calories api");
+        JSONObject payloadObj = new JSONObject(payload);
+        String name = payloadObj.getString("item");
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("Content-Type", "application/json");
+
+        Connection conn;
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", SQLPASSWORD
+            );
+            System.out.println(conn);
+            String query = "SELECT * FROM Foods WHERE Name = (?)";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, name);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                String retrieveCal = rs.getString("Calories(kcal)");
+                JSONObject responseObj = new JSONObject();
+                responseObj.put("calories", retrieveCal);
+                System.out.println("Calories: " + retrieveCal);
+                return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.OK);
+            }
+        }
+        catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            JSONObject responseObj = new JSONObject();
+//            responseObj.put("username", username);
+            responseObj.put("message", e.getMessage());
+            System.out.println("error");
+            return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        JSONObject responseObj = new JSONObject();
+        responseObj.put("calories", "No calories listed");
+        System.out.println("Calories: --");
+        return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.OK);
+    }
 //    @RequestMapping(value = "/addToWishList", method = RequestMethod.POST) // <-- setup the endpoint URL at /hello with the HTTP POST method
 //    public ResponseEntity<String> addToWishList(HttpServletRequest request) {
 //        String nameToPull = request.getParameter("username");
