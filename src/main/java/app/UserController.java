@@ -327,6 +327,51 @@ public ResponseEntity<String> getFoods(HttpServletRequest request) {
     System.out.println("yikes");
     return new ResponseEntity("{\"message\":\"" + " error \"}", responseHeaders, HttpStatus.OK);
 }
+    @RequestMapping(value = "/getUserCalories", method = RequestMethod.POST)
+    public ResponseEntity<String> getUserCalories(@RequestBody String payload, HttpServletRequest request) {
+//    String searchString = request.getParameter("Name");
+//        System.out.println(searchString);
+//    searchString = "%"+searchString+"%";
+//        System.out.println(searchString);
+        System.out.println("in get Usercalories api");
+        JSONObject payloadObj = new JSONObject(payload);
+        String username = payloadObj.getString("username");
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("Content-Type", "application/json");
+
+        Connection conn;
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", SQLPASSWORD
+            );
+            System.out.println(conn);
+            String query = "SELECT * FROM Users WHERE Username = (?)";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                String retrieveCal = rs.getString("Calories");
+                JSONObject responseObj = new JSONObject();
+                responseObj.put("userCalories", retrieveCal);
+                System.out.println("Calories: " + retrieveCal);
+                return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.OK);
+            }
+        }
+        catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            JSONObject responseObj = new JSONObject();
+//            responseObj.put("username", username);
+            responseObj.put("message", e.getMessage());
+            System.out.println("error");
+            return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        JSONObject responseObj = new JSONObject();
+        responseObj.put("calories", "No calories listed");
+        System.out.println("Calories: 0");
+        return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.OK);
+    }
+
+
     @RequestMapping(value = "/getCalories", method = RequestMethod.POST)
     public ResponseEntity<String> getCalories(@RequestBody String payload, HttpServletRequest request) {
 //    String searchString = request.getParameter("Name");
