@@ -74,7 +74,7 @@ public class UserController {
                 return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.BAD_REQUEST);
             }
             else {
-                PreparedStatement stmt = conn.prepareStatement("INSERT INTO Users (Username, Password, Email) VALUES (?,?,?)");
+                PreparedStatement stmt = conn.prepareStatement("INSERT INTO Users (Username, Password, Email, Calories) VALUES (?,?,?, 0)");
 //            stmt.setNull(1, java.sql.Types.NULL);
                 stmt.setString(1, username);
                 stmt.setString(2, hashedKey);
@@ -219,6 +219,7 @@ public class UserController {
 
         responseObj.put("calories", calories);
         responseObj.put("message", "calories saved");
+        System.out.println(calories);
         return new ResponseEntity(responseObj.toString(), responseHeaders, HttpStatus.OK);
 //        return new ResponseEntity("{\"message\":\"username not registered\"}", responseHeaders, HttpStatus.BAD_REQUEST);
     }
@@ -306,7 +307,7 @@ public ResponseEntity<String> getFoods(HttpServletRequest request) {
         JSONArray searchResultsArray = new JSONArray();
         while(rs.next()) {
             JSONObject newObject = new JSONObject();
-            newObject.put("Name", rs.getString("Name"));
+            newObject.put("Item", rs.getString("Item"));
 //                System.out.println(newObject);
 //                newObject.put("description", rs.getString("description"));
 //                newObject.put("price", rs.getString("price"));
@@ -389,12 +390,12 @@ public ResponseEntity<String> getFoods(HttpServletRequest request) {
             conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/Comps?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC", "root", SQLPASSWORD
             );
             System.out.println(conn);
-            String query = "SELECT * FROM Foods WHERE Name = (?)";
+            String query = "SELECT * FROM Foods WHERE Item = (?)";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, name);
             ResultSet rs = stmt.executeQuery();
             while(rs.next()) {
-                String retrieveCal = rs.getString("Calories(kcal)");
+                String retrieveCal = rs.getString("Calories");
                 JSONObject responseObj = new JSONObject();
                 responseObj.put("calories", retrieveCal);
                 System.out.println("Calories: " + retrieveCal);
